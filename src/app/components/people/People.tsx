@@ -1,110 +1,114 @@
 "use client";
-import * as React from "react";
+import { useEffect } from "react";
 import { DataGrid, GridColDef, GridValueGetterParams } from "@mui/x-data-grid";
 import { useSelector } from "react-redux";
 import { useAppDispatch } from "@/store/hooks";
 import { RootState } from "@/store/store";
-import { fetchPeopleThunk } from "@/store/slices/people";
-
-const columns: GridColDef[] = [
-  { field: "id", headerName: "ID", width: 130 },
-  { field: "firstName", headerName: "First name", width: 130 },
-  { field: "lastName", headerName: "Last name", width: 130 },
-  {
-    field: "age",
-    headerName: "Age",
-    type: "number",
-    width: 90,
-  },
-  {
-    field: "gender",
-    headerName: "Gender",
-    width: 90,
-  },
-
-  { field: "email", headerName: "Email", width: 250 },
-];
-
-const rows = [
-  {
-    id: 1,
-    lastName: "Snow",
-    firstName: "Jon",
-    age: 35,
-    gender: "Male",
-    email: "laura.woods@example.com",
-  },
-  {
-    id: 2,
-    lastName: "Lannister",
-    firstName: "Cersei",
-    age: 42,
-    gender: "Male",
-    email: "laura.woods@example.com",
-  },
-  {
-    id: 3,
-    lastName: "Lannister",
-    firstName: "Jaime",
-    age: 45,
-    gender: "Male",
-    email: "laura.woods@example.com",
-  },
-  {
-    id: 4,
-    lastName: "Stark",
-    firstName: "Arya",
-    age: 16,
-    gender: "Male",
-    email: "laura.woods@example.com",
-  },
-  {
-    id: 5,
-    lastName: "Targaryen",
-    firstName: "Daenerys",
-    age: null,
-    gender: "Male",
-    email: "laura.woods@example.com",
-  },
-  {
-    id: 6,
-    lastName: "Melisandre",
-    firstName: null,
-    age: 150,
-    gender: "Male",
-    email: "laura.woods@example.com",
-  },
-  {
-    id: 7,
-    lastName: "Clifford",
-    firstName: "Ferrara",
-    age: 44,
-    gender: "Male",
-  },
-  { id: 8, lastName: "Frances", firstName: "Rossini", age: 36, gender: "Male" },
-  { id: 9, lastName: "Roxie", firstName: "Harvey", age: 65, gender: "Male" },
-];
+import {
+  changeFilter,
+  changePage,
+  fetchPeopleThunk,
+} from "@/store/slices/people";
+import { Avatar, Button, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import "./people.css";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import Paper from "@mui/material/Paper";
+import Link from "next/link";
+import BackdropLoading from "../BackdropLoading";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 
 export const People = () => {
-  const { people } = useSelector((state: RootState) => state.people);
+  const { people, filter, page, pageSize, isLoading } = useSelector(
+    (state: RootState) => state.people
+  );
   const dispatch = useAppDispatch();
-  React.useEffect(() => {
+
+  useEffect(() => {
+    console.log("people state: ", people);
+  }, [people]);
+
+  useEffect(() => {
     dispatch(fetchPeopleThunk());
-  }, []);
+  }, [filter, page]);
+
+  function handlePageChange(direction: number) {
+    dispatch(changePage(direction));
+  }
+
+  const handleChangeFilter = (
+    event: React.MouseEvent<HTMLElement>,
+    newFilter: "all" | "male" | "female"
+  ) => {
+    dispatch(changeFilter(newFilter));
+  };
+
   return (
-    <div style={{ height: 400, width: "100%" }}>
+    <div style={{ width: "100%" }}>
       <h1>People Listing</h1>
-      <DataGrid
-        rows={rows}
-        columns={columns}
-        initialState={{
-          pagination: {
-            paginationModel: { page: 0, pageSize: 5 },
-          },
-        }}
-        pageSizeOptions={[5, 10]}
-        checkboxSelection
-      />
+      <BackdropLoading isLoading={isLoading} />
+      <ToggleButtonGroup
+        color="primary"
+        value={filter}
+        exclusive
+        onChange={handleChangeFilter}
+        aria-label="Platform"
+      >
+        <ToggleButton value="all">All</ToggleButton>
+        <ToggleButton value="male">Male</ToggleButton>
+        <ToggleButton value="female">Female</ToggleButton>
+      </ToggleButtonGroup>
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell align="left"></TableCell>
+              <TableCell align="left">First Name</TableCell>
+              <TableCell align="left">Last Name</TableCell>
+              <TableCell align="left">Age</TableCell>
+              <TableCell align="left">Gender</TableCell>
+              <TableCell align="left">Email</TableCell>
+              <TableCell align="left">Action</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {people.map((person) => (
+              <TableRow
+                key={person.id}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+              >
+                <TableCell align="left">
+                  <Avatar alt="Remy Sharp" src={person.pictureUrl} />
+                </TableCell>
+                <TableCell align="left">{person.firstName}</TableCell>
+                <TableCell align="left">{person.lastName}</TableCell>
+                <TableCell align="left">{person.age}</TableCell>
+                <TableCell align="left">
+                  {person.gender.toUpperCase()}
+                </TableCell>
+                <TableCell align="left">{person.email}</TableCell>
+                <TableCell align="left">
+                  {
+                    <Link href={`/${person.id}`}>
+                      <VisibilityIcon />
+                    </Link>
+                  }
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <div className={"paginationButtons"}>
+        <Button onClick={() => handlePageChange(-1)} disabled={page === 1}>
+          Previous
+        </Button>
+        <Button onClick={() => handlePageChange(+1)}>Next</Button>
+      </div>
     </div>
   );
 };

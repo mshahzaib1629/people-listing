@@ -1,0 +1,6 @@
+.paginationButtons {
+    display: "flex";
+    justify-content: "flex-end";
+    margin-top: "25px";
+    gap: "10px";
+  }
