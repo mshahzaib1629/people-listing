@@ -1,18 +1,23 @@
 "use client";
 import { decrement, increment } from "@/store/slices/counter";
+import { fetchPeopleThunk } from "../store/slices/people";
 import { RootState } from "../store/store";
 import Image from "next/image";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
+import { useAppDispatch } from "@/store/hooks";
 
 export default function Home() {
   const count = useSelector((state: RootState) => state.counter.value);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   return (
     <div>
       <div>
         <button
           aria-label="Increment value"
-          onClick={() => dispatch(increment())}
+          onClick={() => {
+            dispatch(fetchPeopleThunk());
+            dispatch(increment());
+          }}
         >
           Increment
         </button>
