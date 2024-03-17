@@ -3,9 +3,19 @@ import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { AppThunk } from "../store";
 
-interface Person {
+export interface Person {
   id: number;
-  name: string;
+  firstName: string;
+  lastName: string;
+  age: number;
+  gender: string;
+  email: string;
+  pictureUrl: string;
+  address: {
+    city: string;
+    country: string;
+    postCode: number;
+  };
 }
 
 interface PeopleAPIResponse {}
@@ -27,7 +37,7 @@ export const peopleSlice = createSlice({
   name: "people",
   initialState,
   reducers: {
-    getPeople: (state, action: PayloadAction<PeopleAPIResponse>) => {
+    updatePeople: (state, action: PayloadAction<PeopleAPIResponse>) => {
       //TODO: get values from the API response and update states
       const {} = action.payload;
       state.people = [];
@@ -41,14 +51,14 @@ export const peopleSlice = createSlice({
   },
 });
 
-export const { getPeople, changeFilter } = peopleSlice.actions;
+export const { updatePeople, changeFilter } = peopleSlice.actions;
 
 export const fetchPeopleThunk = (): AppThunk => async (dispatch, getState) => {
   let response;
   try {
     const { page, pageSize, filter } = getState().people;
-      response = await PeopleService.fetchPeople(page, pageSize, filter);
-    dispatch(getPeople([]));
+    response = await PeopleService.fetchPeople(page, pageSize, filter);
+    dispatch(updatePeople([]));
   } catch (error) {
     console.log("error in fetchPeopleThunk: ", error);
     throw error;
