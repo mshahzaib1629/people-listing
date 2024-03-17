@@ -9,7 +9,13 @@ import {
   changePage,
   fetchPeopleThunk,
 } from "@/store/slices/people";
-import { Avatar, Button, ToggleButton, ToggleButtonGroup } from "@mui/material";
+import {
+  Avatar,
+  Button,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+} from "@mui/material";
 import "./people.css";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -22,15 +28,11 @@ import Link from "next/link";
 import BackdropLoading from "../BackdropLoading";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 
-export const People = () => {
+export default function People() {
   const { people, filter, page, pageSize, isLoading } = useSelector(
     (state: RootState) => state.people
   );
   const dispatch = useAppDispatch();
-
-  useEffect(() => {
-    console.log("people state: ", people);
-  }, [people]);
 
   useEffect(() => {
     dispatch(fetchPeopleThunk());
@@ -49,7 +51,9 @@ export const People = () => {
 
   return (
     <div style={{ width: "100%" }}>
-      <h1>People Listing</h1>
+      <Typography variant="h4" component="h4">
+        People Listing
+      </Typography>
       <BackdropLoading isLoading={isLoading} />
       <ToggleButtonGroup
         color="primary"
@@ -103,12 +107,20 @@ export const People = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      <br />
       <div className={"paginationButtons"}>
-        <Button onClick={() => handlePageChange(-1)} disabled={page === 1}>
+        <Button
+          variant="outlined"
+          onClick={() => handlePageChange(-1)}
+          disabled={page === 1}
+        >
           Previous
         </Button>
-        <Button onClick={() => handlePageChange(+1)}>Next</Button>
+        &nbsp;
+        <Button variant="outlined" onClick={() => handlePageChange(+1)}>
+          Next
+        </Button>
       </div>
     </div>
   );
-};
+}

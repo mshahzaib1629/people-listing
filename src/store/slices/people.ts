@@ -41,7 +41,7 @@ export const peopleSlice = createSlice({
     changePage: (state, action: PayloadAction<number>) => {
       // change can be +1 or -1
       const change = action.payload;
-      console.log("change: ", state.page);
+
       if (state.page + change > 0) state.page = state.page + change;
       else state.page = 1;
     },
